@@ -27,10 +27,7 @@ const App = () => {
 
   const sendMessage = () => {
     const request = new XMLHttpRequest();
-    request.open(
-      "POST",
-      process.env.WEBHOOK_URL
-    );
+    request.open("POST", process.env.REACT_APP_WEBHOOK_URL);
     request.setRequestHeader("Content-type", "application/json");
 
     const queryParams = new URLSearchParams(window.location.search);
@@ -91,27 +88,16 @@ const App = () => {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" fixed="top">
-        <Container>
-          <Navbar.Brand href="#home">
-            <img
-              alt=""
-              src="https://cdn.discordapp.com/icons/733117510420791358/a_2a2e9349029a56a1da08e999e0ac31e1.webp"
-              width="30"
-              height="30"
-              className="d-inline-block align-top"
-            />{" "}
-            GCG Price Sheet Modifiers
-          </Navbar.Brand>
-        </Container>
-      </Navbar>
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-        crossOrigin="anonymous"
-      />
-      <span style={{ paddingTop: "56px", paddingBottom: "56px" }}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossOrigin="anonymous"
+        />
+      </head>
+
+      <body style={{ paddingBottom: "56px" }}>
         {jsonVal && (
           <ReactJson
             src={jsonVal}
@@ -126,14 +112,16 @@ const App = () => {
             indentWidth={10}
           />
         )}
-      </span>
-      <Navbar bg="dark" variant="dark" fixed="bottom">
-        <Container>
-          <Navbar.Brand href="#home" onClick={sendMessage}>
-            Click here to automatically upload this file
-          </Navbar.Brand>
-        </Container>
-      </Navbar>
+      </body>
+      <footer>
+        <Navbar bg="dark" variant="dark" fixed="bottom">
+          <Container>
+            <Navbar.Brand href="#home" onClick={sendMessage}>
+              Click here to automatically upload this file
+            </Navbar.Brand>
+          </Container>
+        </Navbar>
+      </footer>
     </>
   );
 };
