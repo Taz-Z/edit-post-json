@@ -7,6 +7,7 @@ const App = () => {
   const [jsonVal, setJsonVal] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const [hasError, setHasError] = useState(false);
+  const [isSetup, setIsSetup] = useState(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -31,6 +32,11 @@ const App = () => {
     request.setRequestHeader("Content-type", "application/json");
 
     const queryParams = new URLSearchParams(window.location.search);
+    const setup = queryParams.get("setup");
+    if (setup) {
+      setIsSetup(true);
+      return;
+    }
     const f = queryParams.get("f");
     const i = queryParams.get("i");
     const params = {
@@ -49,6 +55,24 @@ const App = () => {
   }) => {
     setJsonVal(updated_src);
   };
+
+  if (isSetup) {
+    return (
+      <Modal
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        show
+        onHide={() => {}}
+      >
+        <Modal.Header>
+          <Modal.Title id="contained-modal-title-vcenter">
+            You are successfully setup!
+          </Modal.Title>
+        </Modal.Header>
+      </Modal>
+    );
+  }
 
   if (hasError) {
     return (
