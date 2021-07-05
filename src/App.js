@@ -96,6 +96,20 @@ const App = () => {
           crossOrigin="anonymous"
         />
       </head>
+      <Navbar bg="dark" variant="dark" sticky="top">
+        <Container>
+          <Navbar.Brand href="#home">
+            <img
+              alt=""
+              src="https://cdn.discordapp.com/icons/733117510420791358/a_2a2e9349029a56a1da08e999e0ac31e1.webp"
+              width="30"
+              height="30"
+              className="d-inline-block align-top"
+            />{" "}
+            GCG Price Sheet Modifiers
+          </Navbar.Brand>
+        </Container>
+      </Navbar>
 
       <body style={{ paddingBottom: "56px" }}>
         {jsonVal && (
