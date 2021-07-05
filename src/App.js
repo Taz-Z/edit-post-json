@@ -11,6 +11,11 @@ const App = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
+    const setup = queryParams.get("setup");
+    if (setup) {
+      setIsSetup(true);
+      return;
+    }
     const data = queryParams.get("data");
     if (!data) {
       setHasError(true);
@@ -27,16 +32,13 @@ const App = () => {
   }, []);
 
   const sendMessage = () => {
+    console.log();
     const request = new XMLHttpRequest();
     request.open("POST", process.env.REACT_APP_WEBHOOK_URL);
     request.setRequestHeader("Content-type", "application/json");
 
     const queryParams = new URLSearchParams(window.location.search);
-    const setup = queryParams.get("setup");
-    if (setup) {
-      setIsSetup(true);
-      return;
-    }
+
     const f = queryParams.get("f");
     const i = queryParams.get("i");
     const params = {
