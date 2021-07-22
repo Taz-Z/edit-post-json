@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import ReactJson from "react-json-view";
 import { Container, Navbar, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { JsonEditor as Editor } from 'jsoneditor-react';
+import 'jsoneditor-react/es/editor.min.css';
 
 const App = () => {
   const [jsonVal, setJsonVal] = useState(null);
@@ -32,7 +33,6 @@ const App = () => {
   }, []);
 
   const sendMessage = () => {
-    console.log();
     const request = new XMLHttpRequest();
     request.open("POST", process.env.REACT_APP_WEBHOOK_URL);
     request.setRequestHeader("Content-type", "application/json");
@@ -47,6 +47,8 @@ const App = () => {
     request.send(JSON.stringify(params));
     setIsLoading(true);
   };
+
+  console.log(jsonVal)
 
   const onChange = ({
     updated_src,
@@ -139,18 +141,10 @@ const App = () => {
 
       <body style={{ paddingBottom: "56px" }}>
         {jsonVal && (
-          <ReactJson
-            src={jsonVal}
-            onEdit={onChange}
-            onAdd={onChange}
-            onDelete={onChange}
-            name={false}
-            validationMessage="Error doing that, do it again but better"
-            defaultValue="string"
-            quotesOnKeys={false}
-            theme="railscasts"
-            indentWidth={10}
-          />
+          <Editor
+          value={jsonVal}
+          onChange={setJsonVal}
+      />
         )}
       </body>
       <footer>
