@@ -48,18 +48,6 @@ const App = () => {
     setIsLoading(true);
   };
 
-  console.log(jsonVal)
-
-  const onChange = ({
-    updated_src,
-    name,
-    namespace,
-    new_value,
-    existing_value,
-  }) => {
-    setJsonVal(updated_src);
-  };
-
   if (isSetup) {
     return (
       <Modal
