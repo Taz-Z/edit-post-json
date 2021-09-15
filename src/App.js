@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Container, Navbar, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { JsonEditor as Editor } from 'jsoneditor-react';
-import 'jsoneditor-react/es/editor.min.css';
+import { JsonEditor as Editor } from "jsoneditor-react";
+import "jsoneditor-react/es/editor.min.css";
 
 const App = () => {
   const [jsonVal, setJsonVal] = useState(null);
@@ -32,20 +32,60 @@ const App = () => {
     }
   }, []);
 
-  const sendMessage = () => {
+  const sendRequest = (params) => {
     const request = new XMLHttpRequest();
     request.open("POST", process.env.REACT_APP_WEBHOOK_URL);
     request.setRequestHeader("Content-type", "application/json");
+    request.send(JSON.stringify(params));
+  };
 
+  const sendMessage = () => {
     const queryParams = new URLSearchParams(window.location.search);
 
     const f = queryParams.get("f");
     const i = queryParams.get("i");
-    const params = {
-      content: `${f} && ${i} && ${JSON.stringify(jsonVal)}`,
-    };
-    request.send(JSON.stringify(params));
-    setIsLoading(true);
+    const t = JSON.stringify(jsonVal);
+    const staticParams = `${f} && ${i}`;
+
+    if ((staticParams + t).length > 2000) {
+      const mainKey = Object.keys(jsonVal)[0];
+      const jsons = [{ [mainKey]: {} }];
+      const vals = Object.entries(jsonVal[mainKey]);
+      const divisor = Math.ceil(t.length / 1800);
+      const interval = Math.floor(vals.length / divisor);
+      let messageCount = 0;
+
+      for (let j = 0; j < vals.length; j++) {
+        if (j !== 0 && j % interval === 0) {
+          messageCount++;
+          jsons[messageCount] = { [mainKey]: {} };
+        }
+
+        const [k, v] = vals[j];
+
+        jsons[messageCount] = {
+          [mainKey]: { ...jsons[messageCount][mainKey], [k]: v },
+        };
+      }
+
+      setIsLoading(true);
+
+      for (let z = 0; z < jsons.length; z++) {
+        const params = {
+          content: `${staticParams} && ${JSON.stringify(
+            jsons[z]
+          )} && ${mainKey} ${z === 0 ? "&& 1" : ""}`,
+        };
+        sendRequest(params);
+      }
+    } else {
+      const params = {
+        content: `${staticParams} && ${t}`,
+      };
+      sendRequest(params);
+
+      setIsLoading(true);
+    }
   };
 
   if (isSetup) {
@@ -128,12 +168,7 @@ const App = () => {
       </Navbar>
 
       <body style={{ paddingBottom: "56px" }}>
-        {jsonVal && (
-          <Editor
-          value={jsonVal}
-          onChange={setJsonVal}
-      />
-        )}
+        {jsonVal && <Editor value={jsonVal} onChange={setJsonVal} />}
       </body>
       <footer>
         <Navbar bg="dark" variant="dark" fixed="bottom">
