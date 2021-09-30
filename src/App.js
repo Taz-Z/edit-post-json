@@ -16,40 +16,77 @@ const App = () => {
     if (setup) {
       setIsSetup(true);
       return;
-    };
-    const fileKey = queryParams.get("fileKey");
-    if(!fileKey) {
+    }
+    const data = queryParams.get("data");
+    if (!data) {
       setHasError(true);
       return;
     }
-    const id = queryParams.get("id");
-    if(!id) {
-      setHasError(true);
-      return;
+    const jsonString = Buffer.from(data, "base64");
+    try {
+      setJsonVal(JSON.parse(jsonString));
+    } catch (e) {
+      alert(
+        "Failed to set get JSON info, please try reclicking the discord link. If this problem persists, please contact @Developers for support"
+      );
     }
-    const url = process.env.REACT_APP_API_URL + fileKey
-    console.log(url)
-    fetch(url)
-    .then(response => response.json())
-    .then(data => setJsonVal(data))
-    .catch(() => {
-      setHasError(true);
-    })
   }, []);
 
+  const sendRequest = (params) => {
+    const request = new XMLHttpRequest();
+    request.open("POST", process.env.REACT_APP_WEBHOOK_URL);
+    request.setRequestHeader("Content-type", "application/json");
+    request.send(JSON.stringify(params));
+  };
+
   const sendMessage = () => {
-    setIsLoading(true)
     const queryParams = new URLSearchParams(window.location.search);
-    const fileKey = queryParams.get("fileKey");
-    const id = queryParams.get("id");
-    const url = process.env.REACT_APP_API_URL + `${fileKey}/${id}`;
-    fetch(url, {
-      method: 'POST', 
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(jsonVal)})
-  }
+
+    const f = queryParams.get("f");
+    const i = queryParams.get("i");
+    const t = JSON.stringify(jsonVal);
+    const staticParams = `${f} && ${i}`;
+
+    if ((staticParams + t).length > 2000) {
+      const mainKey = Object.keys(jsonVal)[0];
+      const jsons = [{ [mainKey]: {} }];
+      const vals = Object.entries(jsonVal[mainKey]);
+      const divisor = Math.ceil(t.length / 1800);
+      const interval = Math.floor(vals.length / divisor);
+      let messageCount = 0;
+
+      for (let j = 0; j < vals.length; j++) {
+        if (j !== 0 && j % interval === 0) {
+          messageCount++;
+          jsons[messageCount] = { [mainKey]: {} };
+        }
+
+        const [k, v] = vals[j];
+
+        jsons[messageCount] = {
+          [mainKey]: { ...jsons[messageCount][mainKey], [k]: v },
+        };
+      }
+
+      setIsLoading(true);
+
+      for (let z = 0; z < jsons.length; z++) {
+        const params = {
+          content: `${staticParams} && ${JSON.stringify(
+            jsons[z]
+          )} && ${mainKey} ${z === 0 ? "&& 1" : ""}`,
+        };
+        sendRequest(params);
+      }
+    } else {
+      const params = {
+        content: `${staticParams} && ${t}`,
+      };
+      sendRequest(params);
+
+      setIsLoading(true);
+    }
+  };
 
   if (isSetup) {
     return (
